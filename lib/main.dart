@@ -1,39 +1,39 @@
 import 'package:flutter/material.dart';
 
+final List<String> photoUrls = [
+  'https://picsum.photos/id/1015/400/400',
+  'https://picsum.photos/id/1016/400/400',
+  'https://picsum.photos/id/1021/400/400',
+  'https://picsum.photos/id/1025/400/400',
+  'https://picsum.photos/id/1035/400/400',
+  'https://picsum.photos/id/1043/400/400',
+];
+
 void main() {
-  runApp(PhotoGalleryApp());
+  runApp(MyGalleryApp());
 }
 
-class PhotoGalleryApp extends StatelessWidget {
+class MyGalleryApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Galeria de Fotos',
+      title: 'Minha Galeria',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.indigo,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: PhotoGalleryScreen(),
+      home: GalleryScreen(),
     );
   }
 }
 
-class PhotoGalleryScreen extends StatefulWidget {
+class GalleryScreen extends StatefulWidget {
   @override
-  _PhotoGalleryScreenState createState() => _PhotoGalleryScreenState();
+  _GalleryScreenState createState() => _GalleryScreenState();
 }
 
-class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
+class _GalleryScreenState extends State<GalleryScreen> {
   int? expandedIndex;
-
-  final List<String> photos = [
-    'https://picsum.photos/id/1015/400/400',
-    'https://picsum.photos/id/1016/400/400',
-    'https://picsum.photos/id/1021/400/400',
-    'https://picsum.photos/id/1025/400/400',
-    'https://picsum.photos/id/1035/400/400',
-    'https://picsum.photos/id/1043/400/400',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -42,41 +42,46 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Galeria de Fotos'),
-      ),
-      body: Center(
-        child: GridView.builder(
-          padding: EdgeInsets.all(8),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                expandedIndex = null;
+              });
+            },
           ),
-          itemCount: photos.length,
-          itemBuilder: (context, index) {
-            final isExpanded = expandedIndex == index;
+        ],
+      ),
+      body: GridView.builder(
+        padding: const EdgeInsets.all(8),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        ),
+        itemCount: photoUrls.length,
+        itemBuilder: (context, index) {
+          final isExpanded = expandedIndex == index;
 
-            return GestureDetector(
+          return Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
               onTap: () {
                 setState(() {
-                  if (isExpanded) {
-                    expandedIndex = null;
-                  } else {
-                    expandedIndex = index;
-                  }
+                  expandedIndex = isExpanded ? null : index;
                 });
               },
               child: AnimatedContainer(
-                duration: Duration(milliseconds: 300),
+                duration: Duration(milliseconds: 280),
                 curve: Curves.easeInOut,
-                width: isExpanded ? size.width : null,
-                height: isExpanded ? size.height : null,
+                width: isExpanded ? size.width : size.width / 2 - 16,
+                height: isExpanded ? size.height : 200,
                 decoration: BoxDecoration(
-                  color: isExpanded ? Colors.blue.shade100 : Colors.white,
+                  color: isExpanded ? Colors.indigo.shade100 : Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  image: DecorationImage(
-                    image: NetworkImage(photos[index]),
-                    fit: BoxFit.cover,
-                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black26,
@@ -84,11 +89,18 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
                       offset: Offset(2, 2),
                     )
                   ],
+                  image: DecorationImage(
+                    image: NetworkImage(photoUrls[index]),
+                    fit: BoxFit.cover,
+                  ),
                 ),
+                transform: isExpanded
+                    ? Matrix4.identity()..scale(1.04)
+                    : Matrix4.identity(),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
